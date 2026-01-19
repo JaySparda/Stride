@@ -29,3 +29,7 @@ Stride is built using a **Clean Architecture** pattern to ensure the code is sca
 - A Firebase Project
 
 ### Installation
+
+1. **Clone the repository**
+
+   git clone https://github.com/JaySparda/Stride.git
