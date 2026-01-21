@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:stride/navigation/navigation.dart';
+import 'package:stride/ui/add_todo_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,9 +27,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _navigateToAdd() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddTodoScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToAdd,
+        child: Icon(Icons.add),
+        ),
       appBar: AppBar(title: Text("Stride")),
       body: PageView(
         controller: _pageController,
