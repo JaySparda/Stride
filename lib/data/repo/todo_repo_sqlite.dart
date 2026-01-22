@@ -19,7 +19,9 @@ class TodoRepoSqlite {
 
   Future<Todo?> getTodoById(int id) async {
     final List<Map<String, dynamic>> map = await db.getTodoById(id);
-    if (map.isEmpty) return Todo.fromMap(map[0]);
+    if (map.isNotEmpty) {
+    return Todo.fromMap(map[0]);
+    }
 
     return null;
   }
