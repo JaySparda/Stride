@@ -39,7 +39,7 @@ import 'package:stride/data/repo/todo_repo_sqlite.dart';
     @override
     Widget build(BuildContext context) {
       return Scaffold(
-        appBar: AppBar(title: Text("Add Todo"),centerTitle: true,),
+        appBar: AppBar(title: Text("Add Task"),centerTitle: true, elevation: 4,),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(12.0),
           child: Column(

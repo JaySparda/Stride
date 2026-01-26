@@ -66,4 +66,14 @@ class TodoDb {
     final db = await _openDb();
     return db.delete(Todo.TABLE_NAME, where: "id = ?", whereArgs: [id]);
   }
+
+  Future<int> updateTodoStatus(int id, int status) async {
+    final db = await _openDb();
+    return await db.update(
+      Todo.TABLE_NAME, 
+      {'isCompleted': status},
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
 }

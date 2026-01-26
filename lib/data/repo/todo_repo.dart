@@ -6,4 +6,5 @@ abstract class TodoRepo {
   Todo? getTodoById(int id);
   void delete(int id);
   void update(Todo todo, int id);
+  void updateStatus(int id, int status);
 }

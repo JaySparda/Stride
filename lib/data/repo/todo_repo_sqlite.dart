@@ -37,4 +37,8 @@ class TodoRepoSqlite {
   Future<int> updateTodo(Todo todo) async {
     return await db.updateTodo(todo);
   }
+
+  Future<void> updateTodoStatus(int id, int status) async {
+    await db.updateTodoStatus(id, status);
+  }
 }

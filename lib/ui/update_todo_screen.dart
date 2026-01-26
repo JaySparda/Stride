@@ -54,7 +54,7 @@ class _UpdateTodoScreenState extends State<UpdateTodoScreen> {
     if(_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
-      appBar: AppBar(title: Text("Edit Text"), centerTitle: true),
+      appBar: AppBar(title: Text("Edit Task"), centerTitle: true, elevation: 4,),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24.0),
         child: Column(

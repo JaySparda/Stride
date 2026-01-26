@@ -13,7 +13,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Profile")),
+      appBar: AppBar(title: Text("Profile"), elevation: 4,),
       body: Column(
         children: [
           SizedBox(height: 30.0),

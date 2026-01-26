@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart';
 import 'package:stride/ui/add_todo_screen.dart';
 import 'package:stride/ui/home_screen.dart';
 import 'package:stride/ui/profile_screen.dart';
