@@ -28,7 +28,14 @@ class Navigation {
     GoRoute(
       path: "/profile",
       name: Screen.profile.name,
-      builder: (context, state) => const ProfileScreen()),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, int>?;
+        return ProfileScreen(
+          total: extra?['total'] ?? 0,
+          completed: extra?['completed'] ?? 0,
+        );
+      }
+    ),
   ];
 }
 

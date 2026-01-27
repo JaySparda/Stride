@@ -194,7 +194,14 @@ Future<bool?> _showDeleteDialog(Todo todo) {
         actions: [
           IconButton(
             onPressed: () {
-              context.pushNamed(Screen.profile.name);
+
+              int total = todos.length;
+              int completed = todos.where((t) => t.isCompleted == 1).length;
+
+              context.pushNamed(
+                Screen.profile.name,
+                extra: {'total': total, 'completed': completed}
+                );
             },
             icon: Icon(Icons.account_circle_outlined))
         ],),
