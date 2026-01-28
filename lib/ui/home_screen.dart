@@ -17,6 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
   int _selectedIndex = 0;
   int get _pendingCount => todos.where((t) => t.isCompleted == 0).length;
+  String _searchQuery = "";
+  bool _isAcending = true;
 
   @override
   void initState() {
@@ -92,9 +94,22 @@ Future<bool?> _showDeleteDialog(Todo todo) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final allTasks = snapshot.data?? [];
+        var allTasks = snapshot.data?? [];
 
-        final filteredList = allTasks.where((t) => t.isCompleted == status).toList();
+        var filteredList = allTasks.where((t) => t.isCompleted == status).toList();
+
+        if(_searchQuery.isNotEmpty) {
+          filteredList = filteredList.where((t) => 
+            t.title.toLowerCase().contains(_searchQuery) ||
+            t.category.toLowerCase().contains(_searchQuery)
+          ).toList();
+        }
+
+        filteredList.sort((a, b) {
+          return _isAcending
+          ? a.title.compareTo(b.title)
+          : b.title.compareTo(a.title);
+        });
 
         if(filteredList.isEmpty) {
           return Center(
@@ -172,6 +187,51 @@ Future<bool?> _showDeleteDialog(Todo todo) {
     );
   }
 
+  Widget _buildSearchAndSort() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: "Search tasks or categories...",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+              ),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: IconButton(
+              onPressed: () {
+                setState(() {
+                  _isAcending = !_isAcending;
+                });
+              }, 
+              color: Colors.blue,
+              icon: Icon(_isAcending ? Icons.sort_by_alpha : Icons.sort)
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,12 +265,19 @@ Future<bool?> _showDeleteDialog(Todo todo) {
             },
             icon: Icon(Icons.account_circle_outlined))
         ],),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
+      body: Column(
         children: [
-          _buildFilteredList(0),
-          _buildFilteredList(1)
+          _buildSearchAndSort(),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: _onPageChanged,
+              children: [
+                _buildFilteredList(0),
+                _buildFilteredList(1)
+              ],
+            ),
+          ),
         ],
       ),
 
