@@ -54,6 +54,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     try {
+      ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Syncing with Cloud..."), duration: Duration(seconds: 1)),
+      );
       final localTasks = await repo.getAllTodo();
       for(var task in localTasks) {
         await cloudRepo.syncTodo(task);
