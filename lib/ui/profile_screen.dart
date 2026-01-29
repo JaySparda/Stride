@@ -59,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       final localTasks = await repo.getAllTodo();
       for(var task in localTasks) {
-        await cloudRepo.syncTodo(task);
+        await cloudRepo.syncTodo(task).timeout(Duration(seconds: 3));
       }
 
       if(mounted) Navigator.of(context).pop(true);
@@ -76,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if(mounted) Navigator.of(context).pop(true);
       if(mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Sync failed: $e"), backgroundColor: Colors.red,)
+          SnackBar(content: Text("Cloud Sync Timed Out - Saved to Local Only."), backgroundColor: Colors.red,)
         );
       }
     }
