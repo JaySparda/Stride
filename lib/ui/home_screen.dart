@@ -156,7 +156,17 @@ Future<bool?> _showDeleteDialog(Todo todo) {
               onDismissed: (direction) async {
                 if(direction == DismissDirection.startToEnd) {
                   int newStatus = status == 0 ? 1 : 0;
-                  await repo.updateTodoStatus(todo.id!, newStatus);
+                  try{
+                    await repo.updateTodoStatus(todo.id!, newStatus).timeout(Duration(seconds: 2));
+                  } catch(e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Cloud sync failed. Updated Locally."),
+                        backgroundColor: Colors.orange,
+                        duration: Duration(seconds: 2),
+                      )
+                    );
+                  }
 
                   if(mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -167,7 +177,17 @@ Future<bool?> _showDeleteDialog(Todo todo) {
                     );
                   }
                 } else {
-                  await repo.deleteTodo(todo.id!);
+                  try{
+                    await repo.deleteTodo(todo.id!).timeout(Duration(seconds: 2));
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Cloud sync failed. Deleted Locally"),
+                        backgroundColor: Colors.orange,
+                        duration: Duration(seconds: 2),
+                      )
+                    );
+                  }
                 }
                 _refresh();
               },

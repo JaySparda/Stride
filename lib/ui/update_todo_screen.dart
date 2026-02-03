@@ -41,12 +41,26 @@ class _UpdateTodoScreenState extends State<UpdateTodoScreen> {
   }
 
   void _updateTodo() async {
+    try {
     await repo.updateTodo(Todo(
       id: int.parse(widget.id),
       title: _titleController.text,
       category: _selectedCategory,
-    ));
-    context.pop(true);
+    )).timeout(Duration(seconds: 2));
+
+    if (mounted) context.pop(true);
+    } catch (e) {
+      if(mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Cloud sync failed. Updated locally!"),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          )
+        );
+        context.pop(true);
+      }
+    }
   }
 
   @override

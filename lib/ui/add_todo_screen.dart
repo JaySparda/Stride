@@ -30,11 +30,22 @@ import 'package:stride/data/repo/todo_repo_sqlite.dart';
         isCompleted: 0
       );
 
-      await repo.addTodo(newTodo);
-      
-      if(mounted) {
-      context.pop(true);
+      try {
+      await repo.addTodo(newTodo).timeout(Duration(seconds: 2));
+        if(mounted) {
+        context.pop(true);
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Cloud sync failed. Added locally!"),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          )
+        );
+        context.pop(true);
       }
+      
     }
     @override
     Widget build(BuildContext context) {
