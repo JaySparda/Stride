@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stride/data/repo/todo_repo_firebase.dart';
 import 'package:stride/data/repo/todo_repo_sqlite.dart';
+import 'package:stride/main.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, required this.total, required this.completed});
@@ -17,6 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isSyncEnabled = false;
   final repo = TodoRepoSqlite();
   final cloudRepo = TodoRepoFirebase();
+  bool _isDarkMode = false;
   
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isSyncEnabled = prefs.getBool('cloud_sync') ?? false;
+      _isDarkMode = prefs.getBool('dark_mode') ?? false;
     });
   }
 
@@ -37,6 +40,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isSyncEnabled = value;
     });
+  }
+
+  void _toggleTheme(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('dark_mode', value);
+    setState(() {
+      _isDarkMode = value;
+    });
+
+    themeNotifier.value = value ? ThemeMode.dark : ThemeMode.light;
   }
 
   void _syncAllTasks() async {
@@ -173,6 +186,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 trailing: const Icon(Icons.chevron_left),
                 onTap: _syncAllTasks,
               ),
+
+            Divider(),
+
+            SwitchListTile(
+              title: Text("Dark Mode"),
+              subtitle: Text("Switch between light and dark themes"),
+              secondary: Icon(_isDarkMode ? Icons.dark_mode : Icons.light_mode),
+              value: _isDarkMode, 
+              onChanged: _toggleTheme
+            ),
 
             Divider(),
 

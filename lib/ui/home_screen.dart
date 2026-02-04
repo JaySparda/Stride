@@ -327,6 +327,9 @@ class TodoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDone = todo.isCompleted == 1;
 
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyLarge?.color ?? Colors.black87;
+
     return ListTile(
       onTap: () => onClickItem(todo),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -342,13 +345,13 @@ class TodoItem extends StatelessWidget {
           fontSize: 18.0,
           fontWeight: isDone ? FontWeight.normal : FontWeight.w500,
           decoration: isDone ? TextDecoration.lineThrough : null,
-          color: isDone ? Colors.grey : Colors.black87,
+          color: isDone ? Colors.grey : textColor,
         ),
       ),
       subtitle:  Text(
         todo.category,
         style: TextStyle(
-          color: isDone ? Colors.grey.shade400 : Colors.blueGrey,
+          color: isDone ? Colors.grey.shade400 : theme.hintColor,
         )
       ),
     );
