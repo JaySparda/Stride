@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stride/data/model/todo.dart';
+import 'package:stride/data/repo/todo_repo_firebase.dart';
 import 'package:stride/data/repo/todo_repo_sqlite.dart';
 import 'package:stride/navigation/navigation.dart';
 
@@ -23,7 +24,43 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     _refresh();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForRecovery();
+    });
     super.initState();
+  }
+
+  Future<void> _checkForRecovery() async {
+    if(todos.isEmpty) {
+      final fireRepo = TodoRepoFirebase();
+
+      try{
+        final cloudTask = await fireRepo.fetchAllTodoFromCloud().timeout(Duration(seconds: 5));
+
+        if(cloudTask.isNotEmpty || mounted) {
+          for (var task in cloudTask) {
+            await repo.restoreTodo(task);
+          }
+
+          _refresh();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Cloud data found! Tasks restored successfully."),
+              backgroundColor: Colors.green,
+            )
+          );
+        }
+      } catch(e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No cloud data found or network timeout."),
+            backgroundColor: Colors.red,
+          )
+        );
+      }
+    }
   }
 
   void _onPageChanged(int index) {
@@ -94,7 +131,7 @@ Future<bool?> _showDeleteDialog(Todo todo) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        var allTasks = snapshot.data?? [];
+        var allTasks = todos;
 
         var filteredList = allTasks.where((t) => t.isCompleted == status).toList();
 

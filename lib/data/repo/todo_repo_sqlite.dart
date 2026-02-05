@@ -19,6 +19,10 @@ class TodoRepoSqlite {
     return prefs.getBool('cloud_sync') ?? false;
   }
 
+  Future<void> restoreTodo(Todo todo) async {
+    await db.createTodo(todo); 
+  }
+
   Future<List<Todo>> getAllTodo() async {
     final mapOfTask = await db.getAllTodo();
     return mapOfTask

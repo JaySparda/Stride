@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stride/data/repo/todo_repo_firebase.dart';
 import 'package:stride/data/repo/todo_repo_sqlite.dart';
@@ -19,20 +20,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final repo = TodoRepoSqlite();
   final cloudRepo = TodoRepoFirebase();
   bool _isDarkMode = false;
-  
-  @override
-  void initState() {
-    super.initState();
-    _loadSyncSetting();
-  }
+  String _uid = "Loading...";
 
-  void _loadSyncSetting() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isSyncEnabled = prefs.getBool('cloud_sync') ?? false;
-      _isDarkMode = prefs.getBool('dark_mode') ?? false;
-    });
-  }
+@override
+void initState() {
+  super.initState();
+  _loadSettingsAndUID();
+}
+
+void _loadSettingsAndUID() async {
+  final prefs = await SharedPreferences.getInstance();
+  
+  final currentUID = await cloudRepo.getUserId();
+
+  setState(() {
+    _isSyncEnabled = prefs.getBool('cloud_sync') ?? false;
+    _isDarkMode = prefs.getBool('dark_mode') ?? false;
+    _uid = currentUID;
+  });
+}
+
+void _showRestoreDialog() {
+  final TextEditingController _uidController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Restore Account"),
+      content: TextField(
+        controller: _uidController,
+        keyboardType: TextInputType.number,
+        maxLength: 9,
+        decoration: const InputDecoration(
+          labelText: "Enter 9-digit UID",
+          hintText: "Check your old app settings",
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text("CANCEL")),
+        ElevatedButton(
+          onPressed: () async {
+            if (_uidController.text.length == 9) {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('user_unique_id', _uidController.text);
+
+              cloudRepo.refreshUser(); 
+              
+              setState(() {
+                _uid = _uidController.text;
+              });
+
+              Navigator.pop(context);
+
+              _syncAllTasks(); 
+            }
+          },
+          child: const Text("RESTORE"),
+        ),
+      ],
+    ),
+  );
+}
 
   void _toggleSync(bool value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -156,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             SizedBox(height: 16.0),
 
-            Text("Stride User", style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold)),
+            Text(_uid, style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold)),
             SizedBox(height: 32.0),
 
 
@@ -195,6 +243,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
               secondary: Icon(_isDarkMode ? Icons.dark_mode : Icons.light_mode),
               value: _isDarkMode, 
               onChanged: _toggleTheme
+            ),
+
+            Divider(),
+
+            ListTile(
+              leading:  Icon(Icons.fingerprint, color: Colors.purple),
+              title:  Text("Account UID"),
+              subtitle: Text(_uid),
+              trailing: IconButton(
+                icon:  Icon(Icons.copy, size: 20),
+                onPressed: () { 
+
+                  Clipboard.setData(ClipboardData(text: _uid));
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("UID Copied!")),
+                  );
+                },
+              ),
+            ),
+            ListTile(
+              leading:  Icon(Icons.history_edu, color: Colors.orange),
+              title:  Text("Recover Account"),
+              subtitle:  Text("Enter an old UID to restore data"),
+              onTap: _showRestoreDialog,
             ),
 
             Divider(),
